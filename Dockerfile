@@ -1,13 +1,17 @@
 FROM ubuntu:16.04
 
-ENV FONTCUSOM_VERSION 1.3.8
-
-COPY woff-code-latest.zip /app/woff-code-latest.zip
+ENV FONTCUSOM_VERSION 2.0.0
 
 RUN apt-get update && \
-    apt-get -y install ruby ruby-dev fontforge wget build-essential zlib1g-dev unzip eot-utils python && \
-    unzip /app/woff-code-latest.zip -d /app/sfnt2woff && \
-    cd /app/sfnt2woff && make && mv sfnt2woff /usr/local/bin/ && \
+    apt-get -y install ruby ruby-dev fontforge wget build-essential zlib1g-dev unzip eot-utils python git woff-tools && \
+    git clone https://github.com/bramstein/sfnt2woff-zopfli.git sfnt2woff-zopfli && cd sfnt2woff-zopfli && \
+    make && \
+    mv sfnt2woff-zopfli /usr/local/bin/sfnt2woff && \
+    git clone --recursive https://github.com/google/woff2.git && \
+    cd woff2 && \
+    make clean all && \
+    mv woff2_compress /usr/local/bin/ && \
+    mv woff2_decompress /usr/local/bin/ && \
     gem install --no-document fontcustom -v "${FONTCUSOM_VERSION}"
 
 VOLUME /app/project
